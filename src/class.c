@@ -406,6 +406,7 @@ mrb_define_method_id(mrb_state *mrb, struct RClass *c, mrb_sym mid, mrb_func_t f
 
   p = mrb_proc_new_cfunc(mrb, func);
   p->target_class = c;
+  p->aspec = aspec;
   mrb_define_method_raw(mrb, c, mid, p);
   mrb_gc_arena_restore(mrb, ai);
 }
@@ -1304,7 +1305,7 @@ mrb_mod_attr_reader(mrb_state *mrb, mrb_value mod)
     mrb_iv_check(mrb, sym);
     name = mrb_symbol_value(sym);
     mrb_define_method_raw(mrb, c, method,
-                          mrb_proc_new_cfunc_with_env(mrb, attr_reader, 1, &name));
+                          mrb_proc_new_cfunc_with_env_aspec(mrb, attr_reader, 1, &name, MRB_ARGS_NONE()));
     mrb_gc_arena_restore(mrb, ai);
   }
   return mrb_nil_value();
@@ -1353,7 +1354,7 @@ mrb_mod_attr_writer(mrb_state *mrb, mrb_value mod)
     method = mrb_intern_str(mrb, str);
 
     mrb_define_method_raw(mrb, c, method,
-                          mrb_proc_new_cfunc_with_env(mrb, attr_writer, 1, &attr));
+                          mrb_proc_new_cfunc_with_env_aspec(mrb, attr_writer, 1, &attr, MRB_ARGS_REQ(1)));
     mrb_gc_arena_restore(mrb, ai);
   }
   return mrb_nil_value();

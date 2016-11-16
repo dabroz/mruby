@@ -80,12 +80,19 @@ mrb_t_printstr(mrb_state *mrb, mrb_value self)
   return argv;
 }
 
+static mrb_value
+mrb_t_aspec_test(mrb_state *mrb, mrb_value self)
+{
+  return mrb_nil_value();
+}
+
 void
 mrb_init_test_driver(mrb_state *mrb, mrb_bool verbose)
 {
   struct RClass *krn, *mrbtest;
 
   krn = mrb->kernel_module;
+  mrb_define_method(mrb, krn, "__t_aspec_test__", mrb_t_aspec_test, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, krn, "__t_printstr__", mrb_t_printstr, MRB_ARGS_REQ(1));
 
   mrbtest = mrb_define_module(mrb, "Mrbtest");

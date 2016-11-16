@@ -1141,6 +1141,9 @@ RETRY_TRY_BLOCK:
       mrb_value recv, result;
       mrb_sym mid = syms[GETARG_B(i)];
       int bidx;
+      mrb_int argc_min;
+      mrb_int argc_max;
+      mrb_bool argc_rest;
 
       recv = regs[a];
       if (n == CALL_MAXARGS) {
@@ -1210,6 +1213,22 @@ RETRY_TRY_BLOCK:
         else {
           ci->argc = n;
           ci->nregs = n + 2;
+        }
+        argc_min = MRB_ASPEC_REQ(m->aspec);
+        argc_max = argc_min + MRB_ASPEC_OPT(m->aspec);
+        argc_rest = MRB_ASPEC_REST(m->aspec);
+        if (!argc_rest && n != CALL_MAXARGS && (n < argc_min || n > argc_max))
+        {
+          if (argc_min != argc_max)
+          {
+            mrb_raisef(mrb, E_ARGUMENT_ERROR, "wrong number of arguments (given %S, expected %S..%S)",
+              mrb_fixnum_value(n), mrb_fixnum_value(argc_min), mrb_fixnum_value(argc_max));
+          }
+          else
+          {
+            mrb_raisef(mrb, E_ARGUMENT_ERROR, "wrong number of arguments (given %S, expected %S)",
+              mrb_fixnum_value(n), mrb_fixnum_value(argc_min));            
+          }
         }
         result = m->body.func(mrb, recv);
         mrb_gc_arena_restore(mrb, ai);

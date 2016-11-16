@@ -35,7 +35,7 @@ cfunc_env_get(mrb_state *mrb, mrb_value self)
   mrb_value *argv; mrb_int argc;
   mrb_get_args(mrb, "na", &n, &argv, &argc);
   mrb_define_method_raw(mrb, mrb_class_ptr(self), n,
-                        mrb_proc_new_cfunc_with_env(mrb, return_env, argc, argv));
+                        mrb_proc_new_cfunc_with_env_aspec(mrb, return_env, argc, argv, MRB_ARGS_REQ(1)));
   return self;
 }
 

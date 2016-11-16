@@ -81,6 +81,7 @@ mrb_proc_new_cfunc(mrb_state *mrb, mrb_func_t func)
   p->body.func = func;
   p->flags |= MRB_PROC_CFUNC;
   p->env = 0;
+  p->aspec = MRB_ARGS_ANY();
 
   return p;
 }
@@ -88,7 +89,14 @@ mrb_proc_new_cfunc(mrb_state *mrb, mrb_func_t func)
 MRB_API struct RProc *
 mrb_proc_new_cfunc_with_env(mrb_state *mrb, mrb_func_t func, mrb_int argc, const mrb_value *argv)
 {
+  return mrb_proc_new_cfunc_with_env_aspec(mrb, func, argc, argv, MRB_ARGS_ANY());
+}
+
+MRB_API struct RProc *
+mrb_proc_new_cfunc_with_env_aspec(mrb_state *mrb, mrb_func_t func, mrb_int argc, const mrb_value *argv, mrb_aspec aspec)
+{
   struct RProc *p = mrb_proc_new_cfunc(mrb, func);
+  p->aspec = aspec;
   struct REnv *e;
   int i;
 
