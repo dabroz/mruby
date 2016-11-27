@@ -159,6 +159,7 @@ task :build_configurations do
           next if float_conf == 'MRB_USE_FLOAT' and boxing_conf == 'MRB_NAN_BOXING'
           next if int_conf == 'MRB_INT64' and boxing_conf == 'MRB_NAN_BOXING'
           next if int_conf == 'MRB_INT16' and boxing_conf == 'MRB_WORD_BOXING'
+          next if int_conf == 'MRB_INT64' and boxing_conf == 'MRB_WORD_BOXING' and mode_32
           env = [float_conf, int_conf, boxing_conf].map do |conf|
             conf == '' ? nil : "-D#{conf}=1"
           end.compact.join(' ')
