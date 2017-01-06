@@ -1798,6 +1798,7 @@ RETRY_TRY_BLOCK:
       int a = GETARG_A(i);
 
       /* need to check if op is overridden */
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE
       if (mrb_type(regs[a]) == MRB_TT_FIXNUM
       &&  (mrb->numeric_methods & MRB_METHOD_FIXNUM_PLUS) == 0) {
         goto L_SEND;
@@ -1806,6 +1807,7 @@ RETRY_TRY_BLOCK:
       &&  (mrb->numeric_methods & MRB_METHOD_FLOAT_PLUS) == 0) {
         goto L_SEND;
       }
+#endif
       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {
       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
         {
@@ -1865,6 +1867,7 @@ RETRY_TRY_BLOCK:
       int a = GETARG_A(i);
 
       /* need to check if op is overridden */
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE      
       if (mrb_type(regs[a]) == MRB_TT_FIXNUM
       &&  (mrb->numeric_methods & MRB_METHOD_FIXNUM_MINUS) == 0) {
         goto L_SEND;
@@ -1873,6 +1876,7 @@ RETRY_TRY_BLOCK:
       &&  (mrb->numeric_methods & MRB_METHOD_FLOAT_MINUS) == 0) {
         goto L_SEND;
       }
+#endif
       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {
       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
         {
@@ -1927,6 +1931,7 @@ RETRY_TRY_BLOCK:
       int a = GETARG_A(i);
 
       /* need to check if op is overridden */
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE      
       if (mrb_type(regs[a]) == MRB_TT_FIXNUM
       &&  (mrb->numeric_methods & MRB_METHOD_FIXNUM_TIMES) == 0) {
         goto L_SEND;
@@ -1935,6 +1940,7 @@ RETRY_TRY_BLOCK:
       &&  (mrb->numeric_methods & MRB_METHOD_FLOAT_TIMES) == 0) {
         goto L_SEND;
       }
+#endif      
       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {
       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
         {
@@ -1989,6 +1995,7 @@ RETRY_TRY_BLOCK:
       int a = GETARG_A(i);
 
       /* need to check if op is overridden */
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE      
       if (mrb_type(regs[a]) == MRB_TT_FIXNUM
       &&  (mrb->numeric_methods & MRB_METHOD_FIXNUM_DIV) == 0) {
         goto L_SEND;
@@ -1997,6 +2004,7 @@ RETRY_TRY_BLOCK:
       &&  (mrb->numeric_methods & MRB_METHOD_FLOAT_DIV) == 0) {
         goto L_SEND;
       }
+#endif
       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {
       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
         {
@@ -2052,9 +2060,11 @@ RETRY_TRY_BLOCK:
       /* need to check if + is overridden */
       switch (mrb_type(regs[a])) {
       case MRB_TT_FIXNUM:
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE
         if ((mrb->numeric_methods & MRB_METHOD_FIXNUM_PLUS) == 0) {
           goto L_SEND_ADDI;
         }
+#endif
         {
           mrb_int x = mrb_fixnum(regs[a]);
           mrb_int y = GETARG_C(i);
@@ -2068,9 +2078,11 @@ RETRY_TRY_BLOCK:
         }
         break;
       case MRB_TT_FLOAT:
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE      
         if ((mrb->numeric_methods & MRB_METHOD_FLOAT_PLUS) == 0) {
           goto L_SEND_ADDI;
         }
+#endif
 #ifdef MRB_WORD_BOXING
         {
           mrb_float x = mrb_float(regs[a]);
@@ -2102,9 +2114,11 @@ RETRY_TRY_BLOCK:
       /* need to check if + is overridden */
       switch (mrb_type(regs_a[0])) {
       case MRB_TT_FIXNUM:
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE      
         if ((mrb->numeric_methods & MRB_METHOD_FIXNUM_MINUS) == 0) {
           goto L_SEND_SUBI;
         }
+#endif
         {
           mrb_int x = mrb_fixnum(regs_a[0]);
           mrb_int y = GETARG_C(i);
@@ -2119,9 +2133,11 @@ RETRY_TRY_BLOCK:
         }
         break;
       case MRB_TT_FLOAT:
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE            
         if ((mrb->numeric_methods & MRB_METHOD_FLOAT_MINUS) == 0) {
           goto L_SEND_SUBI;
         }
+#endif
 #ifdef MRB_WORD_BOXING
         {
           mrb_float x = mrb_float(regs[a]);
