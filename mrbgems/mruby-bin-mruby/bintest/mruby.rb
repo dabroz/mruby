@@ -45,6 +45,20 @@ assert 'Fixnum override' do
   assert_equal o, "<12:test>"
 end
 
+assert 'Fixnum/Fixnum override' do
+  script, bin = Tempfile.new('test.rb'), Tempfile.new('test.mrb')
+
+  script.write "class Fixnum\ndef +(other)\n\"<ok>\"\nend\nend\nprint(2 + 4)\n"
+  script.flush
+
+  `#{cmd('mruby')} "#{script.path}"`
+  `#{cmd('mrbc')} -o "#{bin.path}" "#{script.path}"`
+
+  o = `#{cmd('mruby')} -b #{bin.path}`.strip
+
+  assert_equal o, "<ok>"
+end
+
 assert 'Float override' do
   script, bin = Tempfile.new('test.rb'), Tempfile.new('test.mrb')
 
@@ -57,6 +71,20 @@ assert 'Float override' do
   o = `#{cmd('mruby')} -b #{bin.path}`.strip
 
   assert_equal o, "<42.5:test>"
+end
+
+assert 'Float/Float override' do
+  script, bin = Tempfile.new('test.rb'), Tempfile.new('test.mrb')
+
+  script.write "class Float\ndef +(other)\n\"<ok>\"\nend\nend\nprint(2.5 + 4.5)\n"
+  script.flush
+
+  `#{cmd('mruby')} "#{script.path}"`
+  `#{cmd('mrbc')} -o "#{bin.path}" "#{script.path}"`
+
+  o = `#{cmd('mruby')} -b #{bin.path}`.strip
+
+  assert_equal o, "<ok>"
 end
 
 assert '__END__', '8.6' do
