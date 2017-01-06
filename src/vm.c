@@ -2092,7 +2092,9 @@ RETRY_TRY_BLOCK:
         mrb_float(regs[a]) += GETARG_C(i);
 #endif
         break;
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE
       L_SEND_ADDI:
+#endif
       default:
         if (syms[GETARG_B(i)] == mrb_intern_lit(mrb, "-")) {
           SET_INT_VALUE(regs[a+1], -GETARG_C(i));
@@ -2147,7 +2149,9 @@ RETRY_TRY_BLOCK:
         mrb_float(regs_a[0]) -= GETARG_C(i);
 #endif
         break;
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE
       L_SEND_SUBI:
+#endif
       default:
         if (syms[GETARG_B(i)] == mrb_intern_lit(mrb, "+")) {
           SET_INT_VALUE(regs[a+1], -GETARG_C(i));
