@@ -94,6 +94,12 @@ mrb_init_test_driver(mrb_state *mrb, mrb_bool verbose)
   mrb_define_const(mrb, mrbtest, "FIXNUM_MIN", mrb_fixnum_value(MRB_INT_MIN));
   mrb_define_const(mrb, mrbtest, "FIXNUM_BIT", mrb_fixnum_value(MRB_INT_BIT));
 
+#ifdef MRB_ENABLE_NUMERIC_OVERRIDE
+  mrb_define_const(mrb, mrbtest, "MRB_ENABLE_NUMERIC_OVERRIDE", mrb_bool_value(1));
+#else
+  mrb_define_const(mrb, mrbtest, "MRB_ENABLE_NUMERIC_OVERRIDE", mrb_bool_value(0));
+#endif
+
 #ifdef MRB_USE_FLOAT
   mrb_define_const(mrb, mrbtest, "FLOAT_TOLERANCE", mrb_float_value(mrb, 1e-6));
 #else

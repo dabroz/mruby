@@ -99,7 +99,7 @@
 //#define MRB_ENABLE_DEBUG_HOOK	/* hooks for debugger */
 
 /* allow overriding Fixnum/Float + - * / operators */
-//#define MRB_ENABLE_NUMERIC_OVERRIDE
+#define MRB_ENABLE_NUMERIC_OVERRIDE
 
 /* end of configuration */
 
