@@ -96,10 +96,10 @@ MRB_API struct RProc *
 mrb_proc_new_cfunc_with_env_aspec(mrb_state *mrb, mrb_func_t func, mrb_int argc, const mrb_value *argv, mrb_aspec aspec)
 {
   struct RProc *p = mrb_proc_new_cfunc(mrb, func);
-  p->aspec = aspec;
   struct REnv *e;
   int i;
 
+  p->aspec = aspec;
   p->env = e = env_new(mrb, argc);
   mrb_field_write_barrier(mrb, (struct RBasic *)p, (struct RBasic *)p->env);
   MRB_ENV_UNSHARE_STACK(e);
