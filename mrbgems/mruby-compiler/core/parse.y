@@ -29,6 +29,43 @@
 #include <mruby/throw.h>
 #include "node.h"
 
+/* basic itoa implementation, to avoid sprintf */
+void mrb_itoa(int value, char *result)
+{
+  int base_value = value;
+  char *base_result = result;
+  char temp;
+
+  value = abs(value);
+
+  /* construct the string in reverse */
+  *result++ = 0;
+
+  do
+  {
+    *result++ = (value % 10) + '0';
+    value /= 10;
+  }
+  while (value);
+  
+  if (base_value < 0)
+  {
+    *result++ = '-';
+  }
+  
+  /* reverse output */
+  result--;
+  while (result > base_result)
+  {
+    temp = *base_result;
+    *base_result = *result;
+    *result = temp;
+
+    base_result++;
+    result--;
+  }
+}
+
 #define YYLEX_PARAM p
 
 typedef mrb_ast_node node;
@@ -2964,8 +3001,7 @@ var_ref         : variable
                 | keyword__LINE__
                     {
                       char buf[16];
-
-                      snprintf(buf, sizeof(buf), "%d", p->lineno);
+                      mrb_itoa(p->lineno, buf);
                       $$ = new_int(p, buf, 10);
                     }
                 | keyword__ENCODING__
@@ -3393,14 +3429,113 @@ yyerror(parser_state *p, const char *s)
   p->nerr++;
 }
 
+//#ifndef MRB_DISABLE_STDIO
+/*
+#if 0
+
 static void
-yyerror_i(parser_state *p, const char *fmt, int i)
+yyerror_id(parser_state *p, const char *str1, int i, const char *str2)
 {
   char buf[256];
 
-  snprintf(buf, sizeof(buf), fmt, i);
+  snprintf(buf, sizeof(buf), "%s%d%s", str1, i, str2);
   yyerror(p, buf);
 }
+
+static void
+yyerror_ic(parser_state *p, const char *str1, int i, const char *str2)
+{
+  char buf[256];
+
+  snprintf(buf, sizeof(buf), "%s%c%s", str1, i, str2);
+  yyerror(p, buf);
+}
+
+static void
+yyerror_ix(parser_state *p, const char *str1, int i, const char *str2)
+{
+  char buf[256];
+
+  snprintf(buf, sizeof(buf), "%s%02X%s", str1, i, str2);
+  yyerror(p, buf);
+}
+
+#else
+*/
+static void
+yyerror_d(parser_state *p, const char *str1, int i, const char *str2)
+{
+  char buf[256];
+
+  strcpy(buf, str1);
+  mrb_itoa(i, buf + strlen(buf));
+  strcat(buf, str2);
+  yyerror(p, buf);
+}
+
+static void
+yyerror_c(parser_state *p, const char *str1, int i, const char *str2)
+{
+  char buf[256];
+  size_t len = strlen(str1);
+
+  strcpy(buf, str1);
+  buf[len + 0] = (char)i;
+  buf[len + 1] = 0;
+  strcat(buf, str2);
+  yyerror(p, buf);
+}
+
+static void
+yyerror_x(parser_state *p, const char *str1, int i, const char *str2)
+{
+  char buf[256];
+  char hex[] = "0123456789ABCDEF";
+  size_t len = strlen(str1);
+
+  strcpy(buf, str1);
+  buf[len + 0] = hex[i / 16];
+  buf[len + 1] = hex[i % 16];
+  buf[len + 2] = 0;
+  strcat(buf, str2);
+  yyerror(p, buf);
+}
+
+static void
+yyerror_s(parser_state *p, const char *str1, const char *str2, const char *str3)
+{
+  char buf[256];
+
+  strcpy(buf, str1);
+  strcat(buf, str2);
+  strcat(buf, str3);
+  yyerror(p, buf);
+}
+
+static void
+yyerror_ss(parser_state *p, const char *str1, const char *str2, const char *str3, const char *str4)
+{
+  char buf[256];
+
+  strcpy(buf, str1);
+  strcat(buf, str2);
+  strcat(buf, str3);
+  strcat(buf, str4);
+  yyerror(p, buf);
+}
+
+static void
+yywarning_s(parser_state *p, const char *str1, const char *str2, const char *str3)
+{
+  char buf[256];
+
+  strcpy(buf, str1);
+  strcat(buf, str2);
+  strcat(buf, str3);
+  yywarning(p, buf);
+}
+
+/* #endif */
 
 static void
 yywarn(parser_state *p, const char *s)
@@ -3436,15 +3571,6 @@ yywarning(parser_state *p, const char *s)
 }
 
 static void
-yywarning_s(parser_state *p, const char *fmt, const char *s)
-{
-  char buf[256];
-
-  snprintf(buf, sizeof(buf), fmt, s);
-  yywarning(p, buf);
-}
-
-static void
 backref_error(parser_state *p, node *n)
 {
   int c;
@@ -3452,10 +3578,10 @@ backref_error(parser_state *p, node *n)
   c = (int)(intptr_t)n->car;
 
   if (c == NODE_NTH_REF) {
-    yyerror_i(p, "can't set variable $%" MRB_PRId, (mrb_int)(intptr_t)n->cdr);
+    yyerror_d(p, "can't set variable $", (mrb_int)(intptr_t)n->cdr, "");
   }
   else if (c == NODE_BACK_REF) {
-    yyerror_i(p, "can't set variable $%c", (int)(intptr_t)n->cdr);
+    yyerror_c(p, "can't set variable $", (int)(intptr_t)n->cdr, "");
   }
   else {
     mrb_bug(p->mrb, "Internal error in backref_error() : n=>car == %S", mrb_fixnum_value(c));
@@ -4005,9 +4131,7 @@ parse_string(parser_state *p)
         }
       }
       if (c < 0) {
-        char buf[256];
-        snprintf(buf, sizeof(buf), "can't find heredoc delimiter \"%s\" anywhere before EOF", hinf->term);
-        yyerror(p, buf);
+        yyerror_s(p, "can't find heredoc delimiter \"", hinf->term, "\" anywhere before EOF");
         return 0;
       }
       pylval.nd = new_str(p, tok(p), toklen(p));
@@ -4156,11 +4280,8 @@ parse_string(parser_state *p)
     }
     pushback(p, re_opt);
     if (toklen(p)) {
-      char msg[128];
       tokfix(p);
-      snprintf(msg, sizeof(msg), "unknown regexp option%s - %s",
-          toklen(p) > 1 ? "s" : "", tok(p));
-      yyerror(p, msg);
+      yyerror_ss(p, "unknown regexp option", toklen(p) > 1 ? "s" : "", " - ", tok(p));
     }
     if (f != 0) {
       if (f & 1) *flag++ = 'i';
@@ -4584,9 +4705,7 @@ parser_yylex(parser_state *p)
           break;
         }
         if (c2) {
-          char buf[256];
-          snprintf(buf, sizeof(buf), "invalid character syntax; use ?\\%c", c2);
-          yyerror(p, buf);
+          yyerror_c(p, "invalid character syntax; use ?\\", c2, "");
         }
       }
       ternary:
@@ -4958,7 +5077,7 @@ parser_yylex(parser_state *p)
     pushback(p, c);
     if (nondigit) {
       trailing_uc:
-      yyerror_i(p, "trailing '%c' in number", nondigit);
+      yyerror_c(p, "trailing '", nondigit, "' in number");
     }
     tokfix(p);
     if (is_float) {
@@ -4968,10 +5087,10 @@ parser_yylex(parser_state *p)
       errno = 0;
       d = mrb_float_read(tok(p), &endp);
       if (d == 0 && endp == tok(p)) {
-        yywarning_s(p, "corrupted float value %s", tok(p));
+        yywarning_s(p, "corrupted float value ", tok(p), "");
       }
       else if (errno == ERANGE) {
-        yywarning_s(p, "float %s out of range", tok(p));
+        yywarning_s(p, "float ", tok(p), " out of range");
         errno = 0;
       }
       pylval.nd = new_float(p, tok(p));
@@ -5304,7 +5423,7 @@ parser_yylex(parser_state *p)
       {
         unsigned long n = strtoul(tok(p), NULL, 10);
         if (n > INT_MAX) {
-          yyerror_i(p, "capture group index must be <= %d", INT_MAX);
+          yyerror_d(p, "capture group index must be <= ", INT_MAX, "");
           return 0;
         }
         pylval.nd = new_nth_ref(p, (int)n);
@@ -5341,10 +5460,10 @@ parser_yylex(parser_state *p)
       }
       else if (isdigit(c)) {
         if (p->tidx == 1) {
-          yyerror_i(p, "'@%c' is not allowed as an instance variable name", c);
+          yyerror_c(p, "'@", c, "' is not allowed as an instance variable name");
         }
         else {
-          yyerror_i(p, "'@@%c' is not allowed as a class variable name", c);
+          yyerror_c(p, "'@@", c, "' is not allowed as a class variable name");
         }
         return 0;
       }
@@ -5360,7 +5479,7 @@ parser_yylex(parser_state *p)
 
     default:
       if (!identchar(c)) {
-        yyerror_i(p,  "Invalid char '\\x%02X' in expression", c);
+        yyerror_x(p,  "Invalid char '\\x", c, "' in expression");
         goto retry;
       }
 
