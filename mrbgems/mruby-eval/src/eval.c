@@ -321,7 +321,7 @@ f_instance_eval(mrb_state *mrb, mrb_value self)
 
     mrb_get_args(mrb, "s|zi", &s, &len, &file, &line);
     cv = mrb_singleton_class(mrb, self);
-    proc = create_proc_from_string(mrb, s, len, mrb_nil_value(), file, line);
+    proc = create_proc_from_string(mrb, s, (int)len, mrb_nil_value(), file, line);
     proc->target_class = mrb_class_ptr(cv);
     mrb->c->ci->env = NULL;
     mrb_assert(!MRB_PROC_CFUNC_P(proc));
