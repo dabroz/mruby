@@ -117,7 +117,7 @@ typedef void* (*mrb_allocf) (struct mrb_state *mrb, void*, size_t, void *ud);
  * Function pointer type of custom printing function. It will be used instead of
  * fprintf(stdout/stderr) if provided.
  */
-typedef void (*mrb_printf) (struct mrb_state *mrb, const char *string_ptr, size_t string_length, mrb_bool error_stream);
+typedef void (*mrb_print_func) (struct mrb_state *mrb, const char *string_ptr, size_t string_length, mrb_bool error_stream);
 
 #ifndef MRB_FIXED_STATE_ATEXIT_STACK_SIZE
 #define MRB_FIXED_STATE_ATEXIT_STACK_SIZE 5
@@ -258,7 +258,7 @@ typedef struct mrb_state {
 #endif
   mrb_int atexit_stack_len;
 
-  mrb_printf print_func;
+  mrb_print_func print_func;
 } mrb_state;
 
 
