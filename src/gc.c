@@ -121,7 +121,11 @@ typedef struct {
 } RVALUE;
 
 #ifdef GC_PROFILE
+
+#ifndef MRB_DISABLE_STDIO
 #include <stdio.h>
+#endif
+
 #include <sys/time.h>
 
 static double program_invoke_time = 0;

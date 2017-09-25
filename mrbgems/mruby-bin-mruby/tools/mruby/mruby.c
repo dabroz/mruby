@@ -1,4 +1,7 @@
+#ifndef MRB_DISABLE_STDIO
 #include <stdio.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <mruby.h>

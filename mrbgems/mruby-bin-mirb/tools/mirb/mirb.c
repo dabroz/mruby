@@ -8,7 +8,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef MRB_DISABLE_STDIO
 #include <stdio.h>
+#endif
+
 #include <ctype.h>
 
 #include <signal.h>
