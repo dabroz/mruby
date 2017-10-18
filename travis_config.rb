@@ -36,6 +36,23 @@ MRuby::Build.new do |conf|
   conf.enable_test
 end
 
+MRuby::Build.new('test-32') do |conf|
+  toolchain :gcc
+
+  # include all core GEMs
+  conf.gembox 'full-core'
+  conf.cc.flags += %w(-Werror=declaration-after-statement)
+  conf.compilers.each do |c|
+    c.defines += %w(MRB_GC_FIXED_ARENA)
+  end
+  
+  conf.cc.flags << "-m32"
+  conf.linker.flags << "-m32"
+
+  conf.enable_bintest
+  conf.enable_test
+end
+
 MRuby::Build.new('cxx_abi') do |conf|
   toolchain :gcc
 
