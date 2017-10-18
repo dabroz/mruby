@@ -124,6 +124,24 @@ MRuby::Build.new('test') do |conf|
   conf.gembox 'default'
 end
 
+MRuby::Build.new('test-32') do |conf|
+  # Gets set by the VS command prompts.
+  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
+    toolchain :visualcpp
+  else
+    toolchain :gcc
+  end
+
+  conf.cc.flags << "-m32"
+  conf.linker.flags << "-m32"
+
+  enable_debug
+  conf.enable_bintest
+  conf.enable_test
+
+  conf.gembox 'default'
+end
+
 MRuby::Build.new('bench') do |conf|
   # Gets set by the VS command prompts.
   if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
